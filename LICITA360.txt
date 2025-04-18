@@ -1,0 +1,103 @@
+// Estrutura do Projeto:
+// licita360/
+// ├── backend/
+// │   └── index.js
+// ├── frontend/
+// │   └── index.html
+// └── README.md
+
+// ==== BACKEND - Node.js (Express) ==== //
+// backend/index.js
+const express = require("express");
+const cors = require("cors");
+const fetch = require("node-fetch");
+
+const app = express();
+app.use(cors());
+const PORT = process.env.PORT || 3001;
+
+app.get("/api/pncp", async (req, res) => {
+  const termo = req.query.q;
+  try {
+    const response = await fetch(
+      `https://www.gov.br/pncp-api/api/consulta/pncp/contratacoes?termo=${encodeURIComponent(termo)}&pagina=1`);
+    const data = await response.json();
+    res.json(data); 
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao buscar dados do PNCP" });
+  }
+});
+
+app.get("/api/comprasnet", async (req, res) => {
+  const termo = req.query.q;
+  try {
+    const response = await fetch(
+      `https://gateway.servicos.gov.br/licitacoes/v1/licitacoes.json?uasg=130002&descricao=${encodeURIComponent(termo)}`);
+    const data = await response.json();
+    res.json(data._embedded?.licitacoes || []);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao buscar dados do ComprasNet" });
+  }
+});
+
+app.listen(PORT, () => console.log(`Servidor backend rodando na porta ${PORT}`));
+
+// ==== FRONTEND - HTML (com JS) ==== //
+// frontend/index.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>LICITA360</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .result { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>LICITA360 - Busca de Licitações</h1>
+  <input type="text" id="searchTerm" placeholder="Digite o termo da busca">
+  <button onclick="buscar('pncp')">Buscar PNCP</button>
+  <button onclick="buscar('comprasnet')">Buscar ComprasNet</button>
+  <div id="resultados"></div>
+
+  <script>
+    async function buscar(fonte) {
+      const termo = document.getElementById('searchTerm').value;
+      const res = await fetch(`http://localhost:3001/api/${fonte}?q=${termo}`);
+      const data = await res.json();
+      const div = document.getElementById('resultados');
+      div.innerHTML = "";
+
+      if (!data || data.length === 0) {
+        div.innerHTML = '<p>Nenhum resultado encontrado.</p>';
+        return;
+      }
+
+      data.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'result';
+        el.innerHTML = `<strong>${item.numeroProcesso || item.modalidadeDescricao || 'Sem título'}</strong><br>${item.objeto || item.descricao}`;
+        div.appendChild(el);
+      });
+    }
+  </script>
+</body>
+</html>
+
+// ==== README.md ==== //
+# LICITA360
+Painel de Licitações unificado com dados do [PNCP](https://www.gov.br/pncp) e [ComprasNet](https://www.gov.br/compras/).
+
+### Instalação
+```bash
+cd backend
+npm install
+node index.js
+```
+
+Abra `frontend/index.html` em seu navegador.
+
+### Deploy
+- **Frontend:** Pode ser hospedado via GitHub Pages ou Vercel.
+- **Backend:** Use Render.com ou Railway.app gratuitamente.
