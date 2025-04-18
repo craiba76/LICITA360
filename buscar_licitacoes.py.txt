@@ -1,0 +1,19 @@
+# buscar_licitacoes.py
+
+# Exemplo de função que simula a busca por licitações
+def buscar_licitacoes():
+    print("Iniciando a busca por licitações...")
+    # Aqui você pode adicionar a lógica para buscar as licitações
+    # Exemplo de dados fictícios:
+    licitacoes = [
+        {"id": 1, "nome": "Licitação A", "valor": 100000},
+        {"id": 2, "nome": "Licitação B", "valor": 250000},
+        {"id": 3, "nome": "Licitação C", "valor": 50000}
+    ]
+    
+    print("Licitacoes encontradas:")
+    for licitacao in licitacoes:
+        print(f"ID: {licitacao['id']}, Nome: {licitacao['nome']}, Valor: R${licitacao['valor']}")
+    
+# Chamada da função para simular a busca
+buscar_licitacoes()

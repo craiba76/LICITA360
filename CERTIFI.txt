@@ -1,0 +1,14 @@
+import requests
+import certifi  # Importa o certifi para obter o caminho do certificado CA
+
+# URL da requisição
+url = "https://www.comprasnet.gov.br/"
+
+# Fazendo a requisição com o caminho dos certificados do certifi
+response = requests.get(url, verify=certifi.where())  # Verificando com o certificado correto
+
+# Verifique se a requisição foi bem-sucedida
+if response.status_code == 200:
+    print("✅ Requisição bem-sucedida!")
+else:
+    print(f"❌ Erro na requisição: {response.status_code}")
